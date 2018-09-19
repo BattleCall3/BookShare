@@ -101,6 +101,7 @@ public class BookDealController{
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
+				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
 			}
@@ -132,6 +133,7 @@ public class BookDealController{
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
+				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
 			}
@@ -151,6 +153,7 @@ public class BookDealController{
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
+				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
 			}
@@ -172,6 +175,8 @@ public class BookDealController{
 				if(log.getWay() == Rent)
 					tablename  = " Rented";
 				rentableService.backRentable(bookid,tablename);
+				//删除former表记录
+				rentableService.deleteFormerbyId(bookid);
 				//rentableService.updateRentableId(bookid);
 				data = "{\"result\":\"cacel success\",\"log\":"+JSON.toJSONString(log)+"}";	
 			}		
@@ -179,6 +184,7 @@ public class BookDealController{
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
+				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
 			}
@@ -218,6 +224,7 @@ public class BookDealController{
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
+				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
 			}
@@ -256,6 +263,7 @@ public class BookDealController{
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
+				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
 			}
@@ -285,6 +293,7 @@ public class BookDealController{
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
+				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
 			}
@@ -311,6 +320,7 @@ public class BookDealController{
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
+				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
 			}

@@ -21,4 +21,5 @@ public interface UserBookDao {
 	public TradeLog getLogByid(int logid);
 	List<Integer> getBooksfromBookOwner(String userid);
 	public List<notConfirmPhone> getBookTitle(String userid);
+	public List<Sale> getSaling(String userid);
 }

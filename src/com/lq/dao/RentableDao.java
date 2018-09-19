@@ -24,8 +24,9 @@ public interface RentableDao {
 	public boolean moveRentabletoStop(int bookid);
 	public boolean moveRentableFromStop(int bookid);
 	public boolean updateRentableInfo(int bookid, String picPath,BigDecimal rent_price, BigDecimal sale_price, int way);
-	public Long getRentableLen();
+	public long getRentableLen();
 	public boolean updateRentableWayToMinus(int bookid);
 	public Rentablestop getOneRentableStop(int bookid);
 	public String getNoPicturePath(int bookid);
+	public void deleteFormerbyId(int bookid);
 }

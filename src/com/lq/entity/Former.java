@@ -29,6 +29,11 @@ public class Former implements Serializable {
 		this.userid = userid;
 		this.logid = logid;
 	}
+	public Former(int bookid) {
+		super();
+		this.bookid = bookid;
+	}
+
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}

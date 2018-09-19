@@ -1,9 +1,12 @@
 package com.lq.dao;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
@@ -76,4 +79,20 @@ public class UserDaoImpl implements UserDao{
 		query.setParameterList("booklist", books);
 		return query.list();
 	}
+	
+	@Override
+	public Map<String, String> welcomeInfo(int title, int text) {
+		Map<String, String> welcomeMap = new HashMap<String, String>();
+		String hql = "select text from A_Welcome where number = ?";
+		Session session = sessionFactory.openSession();
+		String resultTitle = (String) session.createQuery(hql).setInteger(0, title).uniqueResult();
+		String resultText = (String) session.createQuery(hql).setInteger(0, text).uniqueResult();
+		session.flush();//执不执行都可以
+		session.clear();
+		session.close();
+		welcomeMap.put("title", resultTitle);
+		welcomeMap.put("text", resultText);
+		return welcomeMap;
+	}
+	
 }

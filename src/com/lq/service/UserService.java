@@ -1,5 +1,6 @@
 package com.lq.service;
 import java.util.List;
+import java.util.Map;
 
 import com.lq.entity.BookOwner;
 import com.lq.entity.Rentable;
@@ -32,4 +33,6 @@ public interface UserService {
 	public List<Integer> getBooksfromFormer(String userid);
 	public List<notConfirmPhone> getMyRentPhone(List<Integer> books);
 	public List<notConfirmPhone> getBookTitle(String userid);
+	public Map<String, String> welcomeInfo(int title, int text);
+	public List<Sale> getSaling(String userid);
 }

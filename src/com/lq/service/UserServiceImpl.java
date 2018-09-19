@@ -1,5 +1,6 @@
 package com.lq.service;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -158,6 +159,16 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public List<notConfirmPhone> getBookTitle(String userid) {
 		return userbookDao.getBookTitle(userid);
+	}
+
+	@Override
+	public Map<String, String> welcomeInfo(int title, int text) {
+		return userDao.welcomeInfo(title, text);
+	}
+
+	@Override
+	public List<Sale> getSaling(String userid) {
+		return userbookDao.getSaling(userid);
 	}
 	
 }

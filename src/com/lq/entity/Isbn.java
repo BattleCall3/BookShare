@@ -9,11 +9,11 @@ public class Isbn {
 
 	//序号：作为表的主键，书的isbn号
 	@Id
-	@Column(length = 64)
+	@Column(length = 32)
 	private String isbn;
 	
 	//书名
-	@Column(length = 64)
+	@Column(length = 100)
 	private String title;
 	
 	//副标题
@@ -21,7 +21,7 @@ public class Isbn {
 	private String subtitle;	
 		
 	//书的图片
-	@Column(length = 64)
+	@Column(length = 120)
 	private String picture;
 	
 	//书的作者
@@ -36,9 +36,9 @@ public class Isbn {
 	@Column(length = 32)
 	private String publisher;
 	
-	//出版地
+	/*//出版地
 	@Column(length = 32)
-	private String pubplace;
+	private String pubplace;*/
 	
 	//出版时间
 	@Column(length = 32)
@@ -61,28 +61,28 @@ public class Isbn {
 	private String isbn10;
 
 	//主题词
-	@Column(length = 32)
+	@Column(length = 200)
 	private String keyword;
 	
-	//版次
+	/*//版次
 	@Column(length = 32)
-	private String edition;
+	private String edition;*/
 	
-	//印次
+	/*//印次
 	@Column(length = 32)
-	private String impression;
+	private String impression;*/
 	
-	//正文语种
+	/*//正文语种
 	@Column(length = 32)
-	private String language;
+	private String language;*/
 	
-	//开本
+	/*//开本
 	@Column(length = 32)
-	private String format;
+	private String format;*/
 	
-	//中图法分类
+	/*//中图法分类
 	@Column(length = 32)
-	private String category;
+	private String category;*/
 
 	public String getIsbn() {
 		return isbn;
@@ -140,13 +140,6 @@ public class Isbn {
 		this.publisher = publisher;
 	}
 
-	public String getPubplace() {
-		return pubplace;
-	}
-
-	public void setPubplace(String pubplace) {
-		this.pubplace = pubplace;
-	}
 
 	public String getPubdate() {
 		return pubdate;
@@ -196,43 +189,4 @@ public class Isbn {
 		this.keyword = keyword;
 	}
 
-	public String getEdition() {
-		return edition;
-	}
-
-	public void setEdition(String edition) {
-		this.edition = edition;
-	}
-
-	public String getImpression() {
-		return impression;
-	}
-
-	public void setImpression(String impression) {
-		this.impression = impression;
-	}
-
-	public String getLanguage() {
-		return language;
-	}
-
-	public void setLanguage(String language) {
-		this.language = language;
-	}
-
-	public String getFormat() {
-		return format;
-	}
-
-	public void setFormat(String format) {
-		this.format = format;
-	}
-
-	public String getCategory() {
-		return category;
-	}
-
-	public void setCategory(String category) {
-		this.category = category;
-	}
 }

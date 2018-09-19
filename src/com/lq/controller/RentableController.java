@@ -1,22 +1,38 @@
 package com.lq.controller;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import com.util.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.lq.entity.BookOwner;
+import com.lq.entity.BookSort;
 import com.lq.entity.Isbn;
 import com.lq.entity.Rentable;
 import com.lq.entity.User;
 import com.lq.service.IsbnService;
 import com.lq.service.RentableService;
 import com.lq.service.UserService;
+import com.util.Valuable;
 /* author 	lmr
  * time		2017/11/29 19:34
  * function	增加了书籍的注册
@@ -89,7 +105,7 @@ public class RentableController{
 			rentable.setStart_time(start_time);
 			rentable.setWay(way);
 			int id = rentableService.getGeneratorId();
-			System.out.println(id);
+//			System.out.println(id);
 			rentableService.updateGeneratorId(id);
 			rentable.setId(id);
 			rentableService.addRentable(rentable);
@@ -104,26 +120,50 @@ public class RentableController{
 			/* 向数据库isbn表查询是否有存在该书的信息
 			 * */
 			response.setContentType("application/json");
-			String data = "{\"result\":\"exist\"}";	
+			String data = "{\"result\":\"exist\",\"bookid\":"+id+"}";	
 			if(isbnService.getOneIsbninfor(information)==null){	
-				data = "{\"isbn\":\""+information+"\"}";	
+				data = "{\"isbn\":\""+information+"\",\"bookid\":"+id+"}";	
 			}			  
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
+				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
 			}
 		}
 		@RequestMapping("/saveisbn")
-	    public void saveisbn(Isbn isbninfo,HttpServletRequest request,HttpServletResponse response){
-			isbnService.addIsbnInfor(isbninfo);	
-			String data = "{\"result\":\"isbn register success\"}";			  
-			try{
-				PrintWriter out = response.getWriter();
-				out.write(data);
-			}catch(IOException e){
-				e.printStackTrace();				
+	    public void saveisbn(Isbn isbninfo){
+			isbnService.addIsbnInfor(isbninfo);
+			/*
+			 * author bc
+			 * 2018.9.20
+			 * 增加方法：将阿凡达api图片下载到服务器上
+			 * url:https://api.avatardata.cn/BookInfo/Img?file=b5cbcc228e8d4f51b239a6662b879e3d.jpg
+			 * 截取后图片名称：b5cbcc228e8d4f51b239a6662b879e3d.jpg
+			 */
+			String pictureUrl = isbninfo.getPicture();
+			String picturePath = Valuable.getAfandapicturepath();
+			String pictureName = pictureUrl.split("=")[1];
+			try {
+				URL url = new URL(pictureUrl);
+				URLConnection conn = url.openConnection();
+				conn.setConnectTimeout(8000);
+				File file = new File(picturePath);
+				if(!file.exists())
+					file.mkdir();
+				InputStream is = conn.getInputStream();
+				byte[] b = new byte[1024];
+				int len;
+				OutputStream os = new FileOutputStream(picturePath+"/"+pictureName);
+				while((len=is.read(b))!=-1)
+					os.write(b, 0, len);
+				os.close();
+				is.close();
+ 			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 		/* author 	lmr
@@ -145,6 +185,7 @@ public class RentableController{
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
+				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
 			}
@@ -153,5 +194,19 @@ public class RentableController{
 		@RequestMapping("/alternobook")
 		public void alternoBookinfo(String isbn, String title, String publisher, String author, HttpServletRequest request, HttpServletResponse response){
 			isbnService.alternoBookinfo(isbn, title, publisher, author);
+		}
+		/*
+		 * bc
+		 * 增加图书分类
+		 */
+		@RequestMapping(value = "classifyTextbook", method = RequestMethod.POST)
+		@ResponseBody
+		public Integer classifyTextbook(@RequestBody(required = false) JSONObject jsonObject) {
+			int bookid = jsonObject.getInteger("bookid");
+			String isbn = jsonObject.getString("isbn");
+			JSONArray arr = jsonObject.getJSONArray("sort");
+			BookSort booksort = new BookSort(bookid, isbn, arr.getInteger(0), arr.getInteger(1), arr.getInteger(2));
+			isbnService.addBookSort(booksort);
+			return 200;
 		}
 }

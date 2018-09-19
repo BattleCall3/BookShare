@@ -3,6 +3,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.lq.entity.BookSort;
 import com.lq.entity.Isbn;
 import com.lq.other.PartRentable;
 
@@ -100,5 +101,55 @@ public class IsbnDaoImpl implements IsbnDao{
 		query.setString(2, author);
 		query.setString(3, isbn);
 		return (query.executeUpdate()>0);
+	}
+	@Override
+	public void addBookSort(BookSort booksort) {
+		sessionFactory.getCurrentSession().save(booksort);
+	}
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> searchIsbn0(String keyword) {
+		String hql = "select isbn from Isbn where title like :key or subtitle like :key or author like :key or publisher like :key or keyword like :key";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+		query.setParameter("key", "%"+keyword+"%");
+		return query.list();
+	}
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> searchInIsbn(String keyword, List<String> isbns) {
+		String hql = "select isbn from Isbn where isbn in (:isbns) and "
+				+ "title like :key or subtitle like :key or author like :key or publisher like :key or keyword like :key";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+		query.setParameterList("isbns", isbns);
+		query.setParameter("key", "%"+keyword+"%");
+		return query.list();
+	}
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<PartRentable> searchBookbyIsbn(int startlocation, int size, List<String> isbns) {
+		String hql = "select new PartRentable(u.id,t.picture,u.way,u.rent_price,u.sale_price,t.title) from Rentable u, Isbn t "
+				+ "where u.information = t.isbn and t.isbn in (:isbns) ";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+		query.setParameterList("isbns", isbns);
+		query.setFirstResult(startlocation);
+		query.setMaxResults(size);
+		return query.list();
+	}
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> getIsbnbySort(int label1, int label2, int label3) {
+		String hql = "select isbn from BookSort where label1=? and label2=? and label3=?";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+		query.setInteger(0, label1);
+		query.setInteger(1, label2);
+		query.setInteger(2, label3);
+		return query.list();
+	}
+	@Override
+	public long bookNumberbyIsbn(List<String> isbns) {
+		String hql = "select count(*) from Rentable where information in (:isbns)";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+		query.setParameterList("isbns", isbns);
+		return (long) query.uniqueResult();
 	}
 }

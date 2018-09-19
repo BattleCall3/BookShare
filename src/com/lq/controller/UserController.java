@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -62,6 +63,7 @@ public class UserController{
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
+				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
 			}
@@ -76,6 +78,7 @@ public class UserController{
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
+				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
 			}
@@ -100,6 +103,7 @@ public class UserController{
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
+				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
 			}
@@ -125,6 +129,7 @@ public class UserController{
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
+				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
 			}
@@ -146,11 +151,14 @@ public class UserController{
 			String rentable = JSON.toJSONString(userService.getAllRentable(userid));
 			//返回书名
 			String booktitle = JSON.toJSONString(userService.getBookTitle(userid));
+			String saling = JSON.toJSONString(userService.getSaling(userid));
 			response.setContentType("application/json");
-			String data = "{\"bought\":"+ bought +",\"renting\":"+ renting +",\"outdate\":"+ outdate +",\"rentable\":"+ rentable +",\"booktitle\":"+ booktitle +"}";	
+			String data = "{\"bought\":"+ bought +",\"renting\":"+ renting +",\"outdate\":"+ outdate +",\"rentable\":"+ rentable +","
+					+ "\"booktitle\":"+ booktitle +",\"saling\":"+ saling +"}";	
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
+				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
 			}
@@ -220,6 +228,7 @@ public class UserController{
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
+				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
 			}
@@ -253,6 +262,7 @@ public class UserController{
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
+				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
 			}
@@ -271,6 +281,7 @@ public class UserController{
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
+				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
 			}
@@ -291,6 +302,7 @@ public class UserController{
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
+				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
 			}
@@ -318,6 +330,7 @@ public class UserController{
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
+				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
 			}
@@ -367,6 +380,7 @@ public class UserController{
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
+				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
 			}
@@ -414,8 +428,22 @@ public class UserController{
 			try {
 				PrintWriter writer = response.getWriter();
 				writer.write(result);
+				writer.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+		/*
+		 * 刚进入小程序要显示的信息
+		 * 1--title
+		 * 2--text
+		 */
+		@RequestMapping("/welcome")
+		@ResponseBody
+		public Map<String, String> welcomeInfo() {
+			int titleNum = 1;
+			int textNum = 2;
+			return userService.welcomeInfo(titleNum, textNum);
+		}
+		
 }	

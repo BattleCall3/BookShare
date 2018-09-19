@@ -66,7 +66,7 @@ public class UserBookDaoImpl implements UserBookDao{
 	@Override
 	public List<Sale> getAllSale(String userid) {
 		// TODO Auto-generated method stub
-		String hql = "FROM Sale u WHERE u.sureornot = 1 and u.id in (SELECT b.bookid FROM BookOwner b WHERE b.userid= ?) order by u.start_time desc";
+		String hql = "FROM Sale u WHERE u.sureornot = 1 and u.id in (SELECT b.bookid FROM BookOwner b WHERE b.userid= ? and b.logid > 0) order by u.start_time desc";
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
 		query.setString(0, userid);
 		return query.list();
@@ -153,4 +153,14 @@ public class UserBookDaoImpl implements UserBookDao{
 		resultTitle.addAll(temp);
 		return resultTitle;
 	}
+	//返回被别人预定购买的书
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Sale> getSaling(String userid) {
+		String hql = "from sale where origin_openid = ? and sureornot = 0";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+		query.setString(0, userid);
+		return query.list();
+	}
+	
 }

@@ -102,7 +102,7 @@ public class RentableServiceImpl implements RentableService{
 		return rentableDao.updateRentableInfo(bookid,picPath,rent_price,sale_price,way);
 	}
 	@Override
-	public Long getRentableLen() {
+	public long getRentableLen() {
 		// TODO Auto-generated method stub
 		return rentableDao.getRentableLen();
 	}
@@ -119,5 +119,9 @@ public class RentableServiceImpl implements RentableService{
 	@Override
 	public String getNoPicturePath(int bookid) {
 		return rentableDao.getNoPicturePath(bookid);
+	}
+	@Override
+	public void deleteFormerbyId(int bookid) {
+		rentableDao.deleteFormerbyId(bookid);
 	}
 }

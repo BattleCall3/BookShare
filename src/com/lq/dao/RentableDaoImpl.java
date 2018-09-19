@@ -1,7 +1,14 @@
 package com.lq.dao;
 import java.math.BigDecimal;
 import java.util.List;
+
 import javax.annotation.Resource;
+
+import org.hibernate.Query;
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import com.lq.entity.Former;
 import com.lq.entity.Generator;
 import com.lq.entity.Isbn;
 import com.lq.entity.Rentable;
@@ -9,9 +16,6 @@ import com.lq.entity.Rentablestop;
 import com.lq.entity.Rented;
 import com.lq.entity.Sale;
 import com.lq.other.PartRentable;
-import org.hibernate.Query;
-import org.hibernate.SessionFactory;
-import org.springframework.stereotype.Repository;
 @Repository
 public class RentableDaoImpl implements RentableDao{
 	@Resource(name="sessionFactory")
@@ -199,11 +203,11 @@ public class RentableDaoImpl implements RentableDao{
 		return(query.executeUpdate()>0);
 	}
 	@Override
-	public Long getRentableLen() {
+	public long getRentableLen() {
 		// TODO Auto-generated method stub
 		String hql = "SELECT COUNT(*) FROM Rentable";
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
-		return (Long)query.uniqueResult();
+		return (long)query.uniqueResult();
 	}
 	@Override
 	public boolean updateRentableWayToMinus(int bookid) {
@@ -233,5 +237,9 @@ public class RentableDaoImpl implements RentableDao{
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
 		query.setInteger(0, bookid);
 		return (String) query.uniqueResult();
+	}
+	@Override
+	public void deleteFormerbyId(int bookid) {
+		sessionFactory.getCurrentSession().delete(new Former(bookid));
 	}
 }
