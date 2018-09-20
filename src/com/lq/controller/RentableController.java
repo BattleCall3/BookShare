@@ -133,7 +133,8 @@ public class RentableController{
 			}
 		}
 		@RequestMapping("/saveisbn")
-	    public void saveisbn(Isbn isbninfo){
+		@ResponseBody
+	    public int saveisbn(Isbn isbninfo){
 			isbnService.addIsbnInfor(isbninfo);
 			/*
 			 * author bc
@@ -145,10 +146,12 @@ public class RentableController{
 			String pictureUrl = isbninfo.getPicture();
 			String picturePath = Valuable.getAfandapicturepath();
 			String pictureName = pictureUrl.split("=")[1];
+			if(pictureUrl.split(":")[0].equals("http"))
+				pictureUrl = pictureUrl.replaceAll("http", "https");
 			try {
 				URL url = new URL(pictureUrl);
 				URLConnection conn = url.openConnection();
-				conn.setConnectTimeout(8000);
+				conn.setConnectTimeout(10000);
 				File file = new File(picturePath);
 				if(!file.exists())
 					file.mkdir();
@@ -165,6 +168,7 @@ public class RentableController{
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			return 200;
 		}
 		/* author 	lmr
 		 * time		2017/12/22

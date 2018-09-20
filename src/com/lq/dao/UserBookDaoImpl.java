@@ -10,8 +10,8 @@ import org.springframework.stereotype.Repository;
 import com.lq.entity.BookOwner;
 import com.lq.entity.Rentable;
 import com.lq.entity.Rented;
-import com.lq.entity.Sale;
 import com.lq.entity.TradeLog;
+import com.lq.other.Saling;
 import com.lq.other.notConfirmPhone;
 @Repository
 public class UserBookDaoImpl implements UserBookDao{
@@ -64,9 +64,10 @@ public class UserBookDaoImpl implements UserBookDao{
 	}
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Sale> getAllSale(String userid) {
+	public List<Saling> getAllSale(String userid) {
 		// TODO Auto-generated method stub
-		String hql = "FROM Sale u WHERE u.sureornot = 1 and u.id in (SELECT b.bookid FROM BookOwner b WHERE b.userid= ? and b.logid > 0) order by u.start_time desc";
+		String hql = "select new Saling(s.id, s.picture, s.information, s.start_time, s.way, s.rent_price, s.sale_price, u.phone) FROM Sale s, User u "
+				+ "WHERE s.sureornot = 1 and s.id in (SELECT b.bookid FROM BookOwner b WHERE b.userid= ? and b.logid > 0) and u.id = s.origin_openid order by s.start_time desc";
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
 		query.setString(0, userid);
 		return query.list();
@@ -151,13 +152,20 @@ public class UserBookDaoImpl implements UserBookDao{
 		query.setString(0, userid);
 		temp = query.list();
 		resultTitle.addAll(temp);
+		hql = "select new notConfirmPhone(s.id, i.title) from Sale s, Isbn i "
+				+ "where s.origin_openid = ? and s.sureornot = 0 and i.isbn = s.information order by s.start_time desc";
+		query = sessionFactory.getCurrentSession().createQuery(hql);
+		query.setString(0, userid);
+		temp = query.list();
+		resultTitle.addAll(temp);
 		return resultTitle;
 	}
 	//返回被别人预定购买的书
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Sale> getSaling(String userid) {
-		String hql = "from sale where origin_openid = ? and sureornot = 0";
+	public List<Saling> getSaling(String userid) {
+		String hql = "select new Saling(s.id, s.picture, s.information, s.start_time, s.way, s.rent_price, s.sale_price, u.phone) from Sale s, User u "
+				+ "where s.origin_openid = ? and s.sureornot = 0 and u.id = (select b.userid from BookOwner b where b.bookid = s.id) order by s.start_time desc";
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
 		query.setString(0, userid);
 		return query.list();

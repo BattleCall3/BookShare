@@ -5,9 +5,9 @@ import java.util.Map;
 import com.lq.entity.BookOwner;
 import com.lq.entity.Rentable;
 import com.lq.entity.Rented;
-import com.lq.entity.Sale;
 import com.lq.entity.TradeLog;
 import com.lq.entity.User;
+import com.lq.other.Saling;
 import com.lq.other.notConfirmPhone;
 public interface UserService {
 	public void addUser(User user);
@@ -21,7 +21,7 @@ public interface UserService {
 	public boolean updateBookOwner(String userid,int bookid,int logid);
 	public BookOwner getBookOwner(int bookid);
 	public  void addlogandformer(TradeLog tradeLog, String origin_openid, int bookid);
-	public List<Sale> getAllSale(String userid);
+	public List<Saling> getAllSale(String userid);
 	public List<Rented> getAllRented(String userid);
 	public List<Rentable> getAllOutDate(String userid);
 	public List<Rentable> getAllRentable(String userid);
@@ -34,5 +34,5 @@ public interface UserService {
 	public List<notConfirmPhone> getMyRentPhone(List<Integer> books);
 	public List<notConfirmPhone> getBookTitle(String userid);
 	public Map<String, String> welcomeInfo(int title, int text);
-	public List<Sale> getSaling(String userid);
+	public List<Saling> getSaling(String userid);
 }

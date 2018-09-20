@@ -11,9 +11,9 @@ import com.lq.dao.UserDao;
 import com.lq.entity.BookOwner;
 import com.lq.entity.Rentable;
 import com.lq.entity.Rented;
-import com.lq.entity.Sale;
 import com.lq.entity.TradeLog;
 import com.lq.entity.User;
+import com.lq.other.Saling;
 import com.lq.other.notConfirmPhone;
 @Service
 public class UserServiceImpl implements UserService{
@@ -92,7 +92,7 @@ public class UserServiceImpl implements UserService{
 	}
 	
 	@Override
-	public List<Sale> getAllSale(String userid) {
+	public List<Saling> getAllSale(String userid) {
 		// TODO Auto-generated method stub
 		return userbookDao.getAllSale(userid);
 	}
@@ -167,7 +167,7 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public List<Sale> getSaling(String userid) {
+	public List<Saling> getSaling(String userid) {
 		return userbookDao.getSaling(userid);
 	}
 	
