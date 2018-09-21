@@ -84,9 +84,33 @@ public class Isbn {
 	@Column(length = 32)
 	private String category;*/
 
+	
+	public Isbn() {	}
+	
+	public Isbn(String isbn, String title, String subtitle, String picture, String author, String summary,
+			String publisher, String pubdate, String page, String price, String binding, String isbn10,
+			String keyword) {
+		super();
+		this.isbn = isbn;
+		this.title = title;
+		this.subtitle = subtitle;
+		this.picture = picture;
+		this.author = author;
+		this.summary = summary;
+		this.publisher = publisher;
+		this.pubdate = pubdate;
+		this.page = page;
+		this.price = price;
+		this.binding = binding;
+		this.isbn10 = isbn10;
+		this.keyword = keyword;
+	}
+	
+
 	public String getIsbn() {
 		return isbn;
 	}
+
 
 	public void setIsbn(String isbn) {
 		this.isbn = isbn;

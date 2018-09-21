@@ -93,13 +93,14 @@ public class IsbnDaoImpl implements IsbnDao{
 	}
 	//修改图书名称
 	@Override
-	public boolean alternoBookinfo(String isbn, String title, String publisher, String author) {
-		String hql = "update Isbn i set i.title=?, i.publisher=?, i.author=? where i.isbn=?";
+	public boolean alternoBookinfo(String isbn, String title, String publisher, String author, String price) {
+		String hql = "update Isbn i set i.title=?, i.publisher=?, i.author=?, i.price=? where i.isbn=?";
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
 		query.setString(0, title);
 		query.setString(1, publisher);
 		query.setString(2, author);
-		query.setString(3, isbn);
+		query.setString(3, price);
+		query.setString(4, price);
 		return (query.executeUpdate()>0);
 	}
 	@Override

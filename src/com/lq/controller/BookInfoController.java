@@ -96,10 +96,13 @@ public class BookInfoController{
 		@RequestMapping("/ofdetail")
 	    public void bookdetail(int bookid,HttpServletRequest request,HttpServletResponse response) {
 	    	response.setContentType("application/json");
+	    	String data = "{\"code\":"+404+"}";
 	    	Rentable rentable = rentableService.getOneRentable(bookid);
-	    	Isbn isbn =rentableService.getBookInfo(rentable.getInformation());
-			String data = "{\"rentable\":"+ JSON.toJSONString(rentable) +",\"detail\":"+ JSON.toJSONString(isbn)+"}";	
-			try{
+	    	if(rentable != null) {
+	    		Isbn isbn =rentableService.getBookInfo(rentable.getInformation());
+	    		data = "{\"rentable\":"+ JSON.toJSONString(rentable) +",\"detail\":"+ JSON.toJSONString(isbn)+"}";	
+	    	}
+	    	try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
 				out.close();

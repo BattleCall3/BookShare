@@ -13,7 +13,7 @@ public interface IsbnDao {
 	public List<String> getSearchIsbn(String keyword);
 	public List<PartRentable> getSearchOrderByKeys(List<String> isbns);
 	public List<PartRentable> getSearchOrderByKey(String isbnstr);
-	public boolean alternoBookinfo(String isbn, String title, String publisher, String author);
+	public boolean alternoBookinfo(String isbn, String title, String publisher, String author, String price);
 	public void addBookSort(BookSort booksort);
 	public List<String> searchIsbn0(String keyword);
 	public List<String> searchInIsbn(String keyword, List<String> isbns);

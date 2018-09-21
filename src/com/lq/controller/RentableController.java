@@ -1,6 +1,8 @@
 package com.lq.controller;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,10 +12,19 @@ import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.sql.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -119,11 +130,142 @@ public class RentableController{
 			userService.addBookOwner(new BookOwner(rentable.getId(),userid,0));
 			/* 向数据库isbn表查询是否有存在该书的信息
 			 * */
-			response.setContentType("application/json");
+/*			response.setContentType("application/json");
 			String data = "{\"result\":\"exist\",\"bookid\":"+id+"}";	
 			if(isbnService.getOneIsbninfor(information)==null){	
 				data = "{\"isbn\":\""+information+"\",\"bookid\":"+id+"}";	
 			}			  
+*/			
+			/*
+			 * 2018.9.21
+			 * bc：后端请求阿凡达数据，给前端返回是否请求到图书信息
+			 * 	正常--200
+			 *	没有找到书--404
+			 * 	阿凡达数据官方接口维护/停用--500
+			 */
+			if(isbnService.getOneIsbninfor(information)==null) {
+				String dataStr = afandaBook(information);
+				if(dataStr != "") {
+					JSONObject json = JSONObject.parseObject(dataStr);
+					int error_code = json.getIntValue("error_code");
+					if(error_code == 0) {
+						String data = "{\"code\":"+200+", \"bookid\":"+id+"}";
+						writeCode(response, data);
+						JSONObject result = json.getJSONObject("result");
+						String title = result.getString("title");
+						String subtitle = result.getString("subtitle");
+						JSONObject images = result.getJSONObject("images");
+						String picture = images.getString("small");
+						downPicture(picture);
+						JSONArray authors = result.getJSONArray("author");
+						String author = "";
+						int authorSize = authors.size();
+						if(authorSize > 0) {
+							author = authors.getString(0);
+							for(int i=1; i<authorSize-1; i++) {
+								author += ",";
+								author += authors.getString(i);
+							}
+							author += authors.getString(authorSize-1);
+						}
+						String summary = result.getString("summary");
+						String publisher = result.getString("publisher");
+						String pubdate = result.getString("pubdate");
+						String pages = result.getString("pages");
+						String price = result.getString("price");
+						String binding = result.getString("binding");
+						String isbn10 = result.getString("Isbn10");
+						JSONArray tags = result.getJSONArray("tags");
+						String keyword = "";
+						int tagsSize = tags.size();
+						if(tagsSize > 0) {
+							keyword += tags.getJSONObject(0).getString("name");
+							for(int i=1; i<tagsSize-1; i++) {
+								keyword += ",";
+								keyword += tags.getJSONObject(i).getString("name");
+							}
+							keyword += tags.getJSONObject(tagsSize-1).getString("name");
+						}
+						Isbn newIsbn = new Isbn(information, title, subtitle, picture, author, 
+								summary, publisher, pubdate, pages, price, binding, isbn10, keyword);
+						isbnService.addIsbnInfor(newIsbn);
+					}else if(error_code == 1) {
+						String data = "{\"code\":"+404+", \"bookid\":"+id+"}";
+						writeCode(response, data);
+						saveNoInfoIsbn(information);
+					}else if(error_code == 10014 || error_code == 10015) {
+						String data = "{\"code\":"+500+", \"bookid\":"+id+"}";
+						writeCode(response, data);
+						saveNoInfoIsbn(information);
+					}
+				}else {
+					String data = "{\"code\":"+404+", \"bookid\":"+id+"}";
+					writeCode(response, data);
+					saveNoInfoIsbn(information);
+					
+				}
+			}else if(isbnService.getOneIsbninfor(information).getTitle() == "自定义书籍"){
+				String data = "{\"code\":"+404+", \"bookid\":"+id+"}";
+				writeCode(response, data);
+				saveNoInfoIsbn(information);
+			}
+		}
+		//写isbn到文件
+		public void writeIsbntoTxt(String isbn) {
+			String filePath = Valuable.getIsbnnoinfofile();
+			File file = new File(filePath);
+			if(!file.isFile())
+				try {
+					file.createNewFile();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			try {
+				FileWriter fw = new FileWriter(file, true);
+				BufferedWriter bw = new BufferedWriter(fw);
+				DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				Date date = new Date(System.currentTimeMillis());
+				bw.write("time:"+df.format(date)+"\r\n");
+				bw.write("isbn:"+isbn+"\r\n");
+				bw.flush();
+				bw.close();
+				fw.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		//请求阿凡达数据
+		public String afandaBook(String isbn) {
+			String afandaUrl = "https://api.avatardata.cn/BookInfo/FindByIsbn?key=9bb781070f8d453f979300897dffb279&isbn=" + isbn;
+			CloseableHttpClient httpClient = HttpClients.createDefault();
+			HttpGet httpGet = new HttpGet(afandaUrl);
+			RequestConfig config = RequestConfig.custom().setConnectTimeout(8000).setSocketTimeout(20000).build();
+			httpGet.setConfig(config);
+			CloseableHttpResponse response = null;
+			String result = "";
+			try {
+				response = httpClient.execute(httpGet);
+				if(response.getStatusLine().getStatusCode() == 200) {
+					result = EntityUtils.toString(response.getEntity());
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				if(response != null)
+					try {
+						response.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				try {
+					httpClient.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			return result;
+		}
+		public void writeCode(HttpServletResponse response, String data) {
 			try{
 				PrintWriter out = response.getWriter();
 				out.write(data);
@@ -132,18 +274,14 @@ public class RentableController{
 				e.printStackTrace();				
 			}
 		}
-		@RequestMapping("/saveisbn")
-		@ResponseBody
-	    public int saveisbn(Isbn isbninfo){
-			isbnService.addIsbnInfor(isbninfo);
-			/*
-			 * author bc
-			 * 2018.9.20
-			 * 增加方法：将阿凡达api图片下载到服务器上
-			 * url:https://api.avatardata.cn/BookInfo/Img?file=b5cbcc228e8d4f51b239a6662b879e3d.jpg
-			 * 截取后图片名称：b5cbcc228e8d4f51b239a6662b879e3d.jpg
-			 */
-			String pictureUrl = isbninfo.getPicture();
+		/*
+		 * author bc
+		 * 2018.9.20
+		 * 增加方法：将阿凡达api图片下载到服务器上
+		 * url:https://api.avatardata.cn/BookInfo/Img?file=b5cbcc228e8d4f51b239a6662b879e3d.jpg
+		 * 截取后图片名称：b5cbcc228e8d4f51b239a6662b879e3d.jpg
+		 */
+		public void downPicture(String pictureUrl) {
 			String picturePath = Valuable.getAfandapicturepath();
 			String pictureName = pictureUrl.split("=")[1];
 			if(pictureUrl.split(":")[0].equals("http"))
@@ -168,7 +306,28 @@ public class RentableController{
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			return 200;
+		}
+		//存储阿凡达没有数据的图书，信息自定义。
+		public void saveNoInfoIsbn(String isbn) {
+			String title = "自定义书籍";
+			String subtitle = "未知";
+			String picture = "";
+			String author = "未知";
+			String summary = "未知";
+			String publisher = "未知";
+			String pubdate = "未知";
+			String page = "未知";
+			String price = "未知";
+			String binding = "未知";
+			String isbn10 = "未知";
+			String keyword = "未知";
+			Isbn newIsbn = new Isbn(isbn, title, subtitle, picture, author, 
+					summary, publisher, pubdate, page, price, binding, isbn10, keyword);
+			isbnService.addIsbnInfor(newIsbn);
+		}
+		@RequestMapping("/saveisbn")
+	    public void saveisbn(Isbn isbninfo){
+			isbnService.addIsbnInfor(isbninfo);
 		}
 		/* author 	lmr
 		 * time		2017/12/22
@@ -196,8 +355,8 @@ public class RentableController{
 		}
 		//修改自定义书籍信息
 		@RequestMapping("/alternobook")
-		public void alternoBookinfo(String isbn, String title, String publisher, String author, HttpServletRequest request, HttpServletResponse response){
-			isbnService.alternoBookinfo(isbn, title, publisher, author);
+		public void alternoBookinfo(String isbn, String title, String publisher, String author, String price, HttpServletRequest request, HttpServletResponse response){
+			isbnService.alternoBookinfo(isbn, title, publisher, author, price);
 		}
 		/*
 		 * bc

@@ -51,8 +51,8 @@ public class IsbnServiceImpl implements IsbnService{
 		return isbndao.getSearchOrderByKey(isbnstr);
 	}
 	@Override
-	public boolean alternoBookinfo(String isbn, String title, String publisher, String author) {
-		return isbndao.alternoBookinfo(isbn, title, publisher, author);
+	public boolean alternoBookinfo(String isbn, String title, String publisher, String author, String price) {
+		return isbndao.alternoBookinfo(isbn, title, publisher, author, price);
 	}
 	@Override
 	public void addBookSort(BookSort booksort) {
