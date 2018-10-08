@@ -2,6 +2,7 @@ package com.lq.dao;
 import java.util.List;
 import java.util.Map;
 
+import com.lq.entity.FormId;
 import com.lq.entity.User;
 import com.lq.other.notConfirmPhone;
 public interface UserDao {
@@ -13,5 +14,8 @@ public interface UserDao {
 	public User getOneUserInfo(String userid);
 	public List<notConfirmPhone> getMyRentPhone(List<Integer> books);
 	public Map<String, String> welcomeInfo(int title, int text);
+	public void saveFormid(FormId formid);
+	public String getFormid(String userid);
+	public String getUserPhone(String userid);
 }
 

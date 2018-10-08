@@ -9,6 +9,7 @@ import com.lq.dao.UserBookDao;
 import com.lq.dao.UserBookLogDao;
 import com.lq.dao.UserDao;
 import com.lq.entity.BookOwner;
+import com.lq.entity.FormId;
 import com.lq.entity.Rentable;
 import com.lq.entity.Rented;
 import com.lq.entity.TradeLog;
@@ -170,5 +171,20 @@ public class UserServiceImpl implements UserService{
 	public List<Saling> getSaling(String userid) {
 		return userbookDao.getSaling(userid);
 	}
-	
+
+	@Override
+	public void saveFormid(FormId formid) {
+		userDao.saveFormid(formid);
+	}
+
+	@Override
+	public String getFormid(String userid) {
+		return userDao.getFormid(userid);
+	}
+
+	@Override
+	public String getUserPhone(String userid) {
+		return userDao.getUserPhone(userid);
+	}
+
 }

@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -30,12 +29,16 @@ import com.util.Valuable;
 @RequestMapping("/upload")
 public class FileUploadController implements ServletContextAware{
 	private static final Logger logger = LoggerFactory.getLogger(FileUploadController.class);
-	@Autowired
+	/*@Autowired
 	private ServletContext servletContext;
 	@Override
 	public void setServletContext(ServletContext context){
 		this.servletContext = context;
-	}
+	}*/
+	
+	@Override
+	public void setServletContext(ServletContext arg0) {} 
+	
 	@RequestMapping(value = "image", method = RequestMethod.POST)
 	public void uploadDiagFile(HttpServletRequest request,HttpServletResponse response) throws IOException, InterruptedException {
 		request.setCharacterEncoding("utf-8");
@@ -109,5 +112,6 @@ public class FileUploadController implements ServletContextAware{
 	    Date today = new Date();  
 	    String tString = df.format(today);  
 	    return tString;  
-	} 	 
+	}
+	
 }

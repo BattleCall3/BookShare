@@ -2,7 +2,11 @@ package com.lq.controller;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -13,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.lq.entity.BookOwner;
 import com.lq.entity.Rentable;
 import com.lq.entity.Rented;
@@ -22,6 +27,7 @@ import com.lq.service.RentableService;
 import com.lq.service.RentedService;
 import com.lq.service.SaleService;
 import com.lq.service.UserService;
+import com.util.Utils;
 import com.util.Valuable;
 @Controller
 @RequestMapping("/bookdeal")
@@ -90,12 +96,17 @@ public class BookDealController{
 					/*退回去的书没有主人
 					 * */
 					BookOwner bookOwner = userService.getBookOwner(bookid);
+					String former_userid = bookOwner.getUserid();
 					if(bookOwner!=null){
-						TradeLog tradeLog  = new TradeLog(begin_time,period,now_way,bookOwner.getUserid(),userid,monney); 
+						TradeLog tradeLog  = new TradeLog(begin_time,period,now_way,former_userid,userid,monney); 
 						userService.addlogandformer(tradeLog,rentable.getOrigin_openid(),bookid);
 						userService.updateBookOwner(userid,bookid,tradeLog.getId());
 						data = "{\"result\":\"dealsuccess\",\"phone\":"+userService.getOneUserInfo(rentable.getOrigin_openid()).getPhone()+"}";	
 					}
+					DateFormat format = new SimpleDateFormat("MM.dd HH:mm");
+					java.util.Date date = new java.util.Date(System.currentTimeMillis());
+					sendWXMessage(former_userid, rentableService.getBookName(rentable.getInformation()), 
+							String.valueOf(rentable.getSale_price()), format.format(date), userService.getUserPhone(userid));
 				}
 			}
 			try{
@@ -105,7 +116,57 @@ public class BookDealController{
 			}catch(IOException e){
 				e.printStackTrace();				
 			}
-		}		
+		}	
+		/*
+		 * author：bc
+		 * time：2018.9.27
+		 * 为用户发送模板消息
+		 */
+		public void sendWXMessage(String touser, String bookName,  String salePrice, String time, String phone) {
+			String url = "https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send?access_token=";
+			String accessToken = TimingController.getAccess_token();
+			url += accessToken;
+			String formid = userService.getFormid(touser);
+			for(int i=0; i<2; i++) {
+				if(formid != null) {
+					Map<String, Object> paramMap = new HashMap<String, Object>();
+					paramMap.put("touser", touser);
+					paramMap.put("template_id", "KYTqbu130vTBTR_iRBKR9Lwi1KSiGAGx7sk8VX79YVM");
+//					paramMap.put("page", "users");
+//					paramMap.put("page", "index");
+					paramMap.put("page", "/pages/users/users");
+					paramMap.put("form_id", formid);
+					Map<String, Object> dataMap = new HashMap<String, Object>();
+//					dataMap.put("keyword1", "{\"value\":"+bookName+"}");
+//					dataMap.put("keyword2", "{\"value\":"+salePrice+"}");
+//					dataMap.put("keyword3", "{\"value\":"+time+"}");
+//					dataMap.put("keyword4", "{\"value\":"+phone+"}");
+					dataMap.put("keyword1", inputMap(bookName));
+					dataMap.put("keyword2", inputMap(salePrice));
+					dataMap.put("keyword3", inputMap(time));
+					dataMap.put("keyword4", inputMap(phone));
+					paramMap.put("data", dataMap);
+					paramMap.put("emphasis_keyword", "keyword1.value");
+					String postResult = Utils.doPost(url, JSONObject.toJSONString(paramMap));
+					if(postResult != "") {
+						JSONObject json = JSONObject.parseObject(postResult);
+						int errcode = json.getIntValue("errcode");
+						if(errcode == 0) 
+							break;
+						else if(errcode == 41028 || errcode == 41029)
+							continue;
+						else 
+							break;
+					}
+				} else
+					break;
+			}
+		}
+		public Map<String, Object> inputMap(String value) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("value", value);
+			return map;
+		}
 		/* author 	lmr
 		 * time		2017/12/20 18:58
 		 * function 尚未确认的交易信息显示界面

@@ -10,6 +10,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
+import com.lq.entity.FormId;
 import com.lq.entity.User;
 import com.lq.other.notConfirmPhone;
 @Repository
@@ -94,5 +95,39 @@ public class UserDaoImpl implements UserDao{
 		welcomeMap.put("text", resultText);
 		return welcomeMap;
 	}
-	
+
+	@Override
+	public void saveFormid(FormId formid) {
+		Session session = sessionFactory.openSession();
+		session.save(formid);
+		String sql = "delete from t_formid where userid = ? and timestampdiff(DAY, date, current_timestamp) > 6";
+		session.createSQLQuery(sql).setString(0, formid.getUserid()).executeUpdate();
+		session.clear();
+		session.close();
+	}
+
+	@Override
+	public String getFormid(String userid) {
+		String hql = "select formid from FormId where userid = ? and timestampdiff(DAY, date, current_timestamp) <7 order by id asc";
+		Session session = sessionFactory.openSession();
+		Query query = session.createQuery(hql);
+		query.setString(0, userid);
+		query.setMaxResults(1);
+		String formid = (String) query.uniqueResult();
+		hql = "delete from FormId where userid = ? and formid = ?";
+		query = session.createQuery(hql);
+		query.setString(0, userid);
+		query.setString(1, formid);
+		query.executeUpdate();
+		session.clear();
+		session.close();
+		return formid;
+	}
+
+	@Override
+	public String getUserPhone(String userid) {
+		String hql = "select phone from User where id = ?";
+		return (String) sessionFactory.getCurrentSession().createQuery(hql).setString(0, userid).uniqueResult();
+	}
+
 }

@@ -8,6 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.lq.entity.BookOwner;
+import com.lq.entity.FormId;
 import com.lq.entity.Isbn;
 import com.lq.entity.Rentable;
 import com.lq.entity.Rentablestop;
@@ -393,8 +395,8 @@ public class UserController{
 			String result = "{\"status\":"+0+",\"openid\":"+null+"}";
 			//微信请求url拼接
 			String qqurl = "https://api.weixin.qq.com/sns/jscode2session";
-			String APPID = "wx09392aba647dbe03";
-			String SECRET = "650307c831d52a8629fee1a5c0358881";
+			String APPID = Valuable.getAppid();
+			String SECRET = Valuable.getSecret();
 			String url = qqurl+"?appid="+APPID+"&secret="+SECRET+"&js_code="+code+"&grant_type=authorization_code";
 			//建立连接，获取数据
 			StringBuilder sb = new StringBuilder();
@@ -444,6 +446,14 @@ public class UserController{
 			int titleNum = 1;
 			int textNum = 2;
 			return userService.welcomeInfo(titleNum, textNum);
+		}
+		/* author：bc
+		 * time：2018.9.27
+		 * 保存formid，为用户发送模板消息需要
+		 */
+		@RequestMapping("/saveFormId")
+		public void saveFormId(String userid, String formid, long date) {
+			userService.saveFormid(new FormId(userid, formid, new Timestamp(date)));
 		}
 		
 }	

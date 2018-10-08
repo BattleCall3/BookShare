@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.lq.entity.Isbn;
 import com.lq.service.AdminService;
 import com.lq.service.IsbnService;
+import com.util.Utils;
 
 @Controller
 @RequestMapping("/admin")
@@ -41,8 +42,8 @@ public class AdminController {
 	//没有书籍信息的，尝试请求官网将isbn表数据信息补全
 	@RequestMapping("/completebookinfo")
 	public void completeBookinfo(String isbn, HttpServletResponse response) {
-		RentableController rc = new RentableController();
-		JSONObject json = JSONObject.parseObject(rc.afandaBook(isbn));
+		String afandaUrl = "https://api.avatardata.cn/BookInfo/FindByIsbn?key=9bb781070f8d453f979300897dffb279&isbn=" + isbn;
+		JSONObject json = JSONObject.parseObject(Utils.doGet(afandaUrl));
 		int error_code = json.getIntValue("error_code");
 		String data = "";
 		if(error_code == 0) {
@@ -51,7 +52,7 @@ public class AdminController {
 			String subtitle = result.getString("subtitle");
 			JSONObject images = result.getJSONObject("images");
 			String picture = images.getString("small");
-			rc.downPicture(picture);
+			Utils.downPicture(picture);
 			JSONArray authors = result.getJSONArray("author");
 			String author = "";
 			int authorSize = authors.size();

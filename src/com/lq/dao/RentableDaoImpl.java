@@ -242,4 +242,9 @@ public class RentableDaoImpl implements RentableDao{
 	public void deleteFormerbyId(int bookid) {
 		sessionFactory.getCurrentSession().delete(new Former(bookid));
 	}
+	@Override
+	public String getBookName(String isbn) {
+		String hql = "select title from Isbn where isbn = ?";
+		return (String) sessionFactory.getCurrentSession().createQuery(hql).setString(0, isbn).uniqueResult();
+	}
 }

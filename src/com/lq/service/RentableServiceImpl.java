@@ -124,4 +124,8 @@ public class RentableServiceImpl implements RentableService{
 	public void deleteFormerbyId(int bookid) {
 		rentableDao.deleteFormerbyId(bookid);
 	}
+	@Override
+	public String getBookName(String isbn) {
+		return rentableDao.getBookName(isbn);
+	}
 }

@@ -1,17 +1,11 @@
 package com.lq.controller;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -19,12 +13,6 @@ import java.text.SimpleDateFormat;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,6 +31,7 @@ import com.lq.entity.User;
 import com.lq.service.IsbnService;
 import com.lq.service.RentableService;
 import com.lq.service.UserService;
+import com.util.Utils;
 import com.util.Valuable;
 /* author 	lmr
  * time		2017/11/29 19:34
@@ -53,7 +42,7 @@ import com.util.Valuable;
 public class RentableController{
 		@Autowired
 		private RentableService rentableService;
-		@Autowired
+		@Autowired 
 		private UserService userService;
 		@Autowired
 		private IsbnService isbnService;
@@ -144,7 +133,8 @@ public class RentableController{
 			 * 	阿凡达数据官方接口维护/停用--500
 			 */
 			if(isbnService.getOneIsbninfor(information)==null) {
-				String dataStr = afandaBook(information);
+				String afandaUrl = "https://api.avatardata.cn/BookInfo/FindByIsbn?key=9bb781070f8d453f979300897dffb279&isbn=" + information;
+				String dataStr = Utils.doGet(afandaUrl);
 				if(dataStr != "") {
 					JSONObject json = JSONObject.parseObject(dataStr);
 					int error_code = json.getIntValue("error_code");
@@ -156,7 +146,7 @@ public class RentableController{
 						String subtitle = result.getString("subtitle");
 						JSONObject images = result.getJSONObject("images");
 						String picture = images.getString("small");
-						downPicture(picture);
+						Utils.downPicture(picture);
 						JSONArray authors = result.getJSONArray("author");
 						String author = "";
 						int authorSize = authors.size();
@@ -166,7 +156,9 @@ public class RentableController{
 								author += ",";
 								author += authors.getString(i);
 							}
-							author += authors.getString(authorSize-1);
+							if(authorSize > 1) {
+								author += authors.getString(authorSize-1);
+							}
 						}
 						String summary = result.getString("summary");
 						String publisher = result.getString("publisher");
@@ -234,37 +226,6 @@ public class RentableController{
 				e.printStackTrace();
 			}
 		}
-		//请求阿凡达数据
-		public String afandaBook(String isbn) {
-			String afandaUrl = "https://api.avatardata.cn/BookInfo/FindByIsbn?key=9bb781070f8d453f979300897dffb279&isbn=" + isbn;
-			CloseableHttpClient httpClient = HttpClients.createDefault();
-			HttpGet httpGet = new HttpGet(afandaUrl);
-			RequestConfig config = RequestConfig.custom().setConnectTimeout(8000).setSocketTimeout(20000).build();
-			httpGet.setConfig(config);
-			CloseableHttpResponse response = null;
-			String result = "";
-			try {
-				response = httpClient.execute(httpGet);
-				if(response.getStatusLine().getStatusCode() == 200) {
-					result = EntityUtils.toString(response.getEntity());
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-				if(response != null)
-					try {
-						response.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				try {
-					httpClient.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			return result;
-		}
 		public void writeCode(HttpServletResponse response, String data) {
 			try{
 				PrintWriter out = response.getWriter();
@@ -272,39 +233,6 @@ public class RentableController{
 				out.close();
 			}catch(IOException e){
 				e.printStackTrace();				
-			}
-		}
-		/*
-		 * author bc
-		 * 2018.9.20
-		 * 增加方法：将阿凡达api图片下载到服务器上
-		 * url:https://api.avatardata.cn/BookInfo/Img?file=b5cbcc228e8d4f51b239a6662b879e3d.jpg
-		 * 截取后图片名称：b5cbcc228e8d4f51b239a6662b879e3d.jpg
-		 */
-		public void downPicture(String pictureUrl) {
-			String picturePath = Valuable.getAfandapicturepath();
-			String pictureName = pictureUrl.split("=")[1];
-			if(pictureUrl.split(":")[0].equals("http"))
-				pictureUrl = pictureUrl.replaceAll("http", "https");
-			try {
-				URL url = new URL(pictureUrl);
-				URLConnection conn = url.openConnection();
-				conn.setConnectTimeout(10000);
-				File file = new File(picturePath);
-				if(!file.exists())
-					file.mkdir();
-				InputStream is = conn.getInputStream();
-				byte[] b = new byte[1024];
-				int len;
-				OutputStream os = new FileOutputStream(picturePath+"/"+pictureName);
-				while((len=is.read(b))!=-1)
-					os.write(b, 0, len);
-				os.close();
-				is.close();
- 			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
 		}
 		//存储阿凡达没有数据的图书，信息自定义。

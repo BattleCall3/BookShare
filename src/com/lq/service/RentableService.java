@@ -29,4 +29,5 @@ public interface RentableService {
 	public Rentablestop getOneRentableStop(int bookid);
 	public String getNoPicturePath(int bookid);
 	public void deleteFormerbyId(int bookid);
+	public String getBookName(String isbn);
 }

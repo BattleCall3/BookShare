@@ -100,7 +100,7 @@ public class IsbnDaoImpl implements IsbnDao{
 		query.setString(1, publisher);
 		query.setString(2, author);
 		query.setString(3, price);
-		query.setString(4, price);
+		query.setString(4, isbn);
 		return (query.executeUpdate()>0);
 	}
 	@Override

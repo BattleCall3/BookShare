@@ -3,6 +3,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.lq.entity.BookOwner;
+import com.lq.entity.FormId;
 import com.lq.entity.Rentable;
 import com.lq.entity.Rented;
 import com.lq.entity.TradeLog;
@@ -35,4 +36,7 @@ public interface UserService {
 	public List<notConfirmPhone> getBookTitle(String userid);
 	public Map<String, String> welcomeInfo(int title, int text);
 	public List<Saling> getSaling(String userid);
+	public void saveFormid(FormId formid);
+	public String getFormid(String userid);
+	public String getUserPhone(String userid);
 }
