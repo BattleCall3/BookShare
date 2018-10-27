@@ -1,9 +1,12 @@
 package com.lq.controller;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -134,7 +137,8 @@ public class BookDealController{
 					paramMap.put("template_id", "KYTqbu130vTBTR_iRBKR9Lwi1KSiGAGx7sk8VX79YVM");
 //					paramMap.put("page", "users");
 //					paramMap.put("page", "index");
-					paramMap.put("page", "/pages/users/users");
+//					paramMap.put("page", "/pages/users/users");
+					paramMap.put("page", "pages/users/users");
 					paramMap.put("form_id", formid);
 					Map<String, Object> dataMap = new HashMap<String, Object>();
 //					dataMap.put("keyword1", "{\"value\":"+bookName+"}");
@@ -155,8 +159,31 @@ public class BookDealController{
 							break;
 						else if(errcode == 41028 || errcode == 41029)
 							continue;
-						else 
+						else {
+							FileWriter fw = null;
+							BufferedWriter bw = null;
+							try {
+								fw = new FileWriter("/image/wxerr.log", true);
+								bw = new BufferedWriter(fw);
+								DateFormat df = new SimpleDateFormat("MM-dd HH:mm");
+								bw.write(df.format(new Date())+"-->");
+								bw.write("touser:"+touser);
+								bw.write("-->errcode:"+errcode);
+								bw.newLine();
+							} catch (IOException e) {
+								e.printStackTrace();
+							} finally {
+									try {
+										if(bw!=null)
+											bw.close();
+										if(fw!=null)
+											fw.close();
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
+							}
 							break;
+						}
 					}
 				} else
 					break;

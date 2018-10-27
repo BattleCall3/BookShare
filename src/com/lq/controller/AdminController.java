@@ -19,7 +19,7 @@ import com.util.Utils;
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
-
+	
 	@Autowired
 	private AdminService aService;
 	@Autowired

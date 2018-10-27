@@ -13,11 +13,11 @@ public class Isbn {
 	private String isbn;
 	
 	//书名
-	@Column(length = 100)
+	@Column(length = 128)
 	private String title;
 	
 	//副标题
-	@Column(length = 64)
+	@Column(length = 128)
 	private String subtitle;	
 		
 	//书的图片
@@ -25,7 +25,7 @@ public class Isbn {
 	private String picture;
 	
 	//书的作者
-	@Column(length = 32)
+	@Column(length = 128)
 	private String author;
 	
 	//书的摘要
@@ -33,7 +33,7 @@ public class Isbn {
 	private String summary;
 
 	//出版社
-	@Column(length = 32)
+	@Column(length = 64)
 	private String publisher;
 	
 	/*//出版地
@@ -61,7 +61,7 @@ public class Isbn {
 	private String isbn10;
 
 	//主题词
-	@Column(length = 200)
+	@Column(length = 255)
 	private String keyword;
 	
 	/*//版次

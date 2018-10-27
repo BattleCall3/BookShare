@@ -181,7 +181,9 @@ public class UserController{
 		    Map<String, Isbn> bookinfo = new HashMap<>();
 		    List<TradeLog> logs = null;
 		    Isbn info = null;
-		    String myrentphone = JSON.toJSONString(userService.getMyRentPhone(books));
+		    String myrentphone = null;
+		    if(books.size()>0)
+		    	myrentphone = JSON.toJSONString(userService.getMyRentPhone(books));
 		    for(Integer bookid : books){
 		    	//按照降序排列
 		    	Rentable rentable = rentableService.getOneRentable(bookid);
